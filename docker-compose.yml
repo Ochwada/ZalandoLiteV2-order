@@ -1,0 +1,33 @@
+# version: '3.8'
+
+services:
+  # 🧩 Microservice 5: Order Service
+  order-service:
+    build:
+      context: .                      # Use current directory for build context
+      dockerfile: Dockerfile         # Use Dockerfile to build the Spring Boot app
+    container_name: order-service
+    ports:
+      - "8589:8589"                   # Expose app on port 9091
+    environment:
+      - PORT=${PORT}
+      - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}  # Loaded from .env or environment
+      - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
+      - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://accounts.google.com
+    depends_on:
+      - mongo                        # Ensure MongoDB starts first
+    networks:
+      - zalando-backend
+
+  # 🍃 MongoDB Service
+  mongo:
+    image: mongo:6.0                 # Official MongoDB image
+    container_name: mongo
+    ports:
+      - "27017:27017"                # Expose MongoDB default port
+    networks:
+      - zalando-backend
+
+networks:
+  zalando-backend:
+    external: true
