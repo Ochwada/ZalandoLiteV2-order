@@ -19,17 +19,6 @@ This service interacts directly with the **Inventory Service** to ensure stock v
 
 ---
 
-```yaml
-
-order_id
-user_id
-product_id
-quantity
-total_price
-status
-created_at
-```
-
 ## Project spring initialization
 ### Dependencies
 Including the common dependencies ([check here](https://github.com/Ochwada/ZalandoLiteV2-MicroservicesArchitecture)),
