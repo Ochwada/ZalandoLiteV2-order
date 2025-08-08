@@ -32,7 +32,7 @@ public class Order {
     /**
      * Unique identifier for the customer who placed the order.
      */
-    private String customer_id;
+    private String customerId;
 
     /**
      * List of individual items included in the order.
@@ -61,7 +61,8 @@ public class Order {
     @LastModifiedDate
     private LocalDateTime createdAt;
 
-
-
-
+    // Custom constructor for convenience - used in OrderMapper.toEntity
+    public Order(List<OrderLineItem> items) {
+        this.items = items;
+    }
 }

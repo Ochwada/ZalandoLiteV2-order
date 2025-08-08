@@ -9,8 +9,6 @@ import lombok.*;
  * Description: Represents a single product item in an order . Contains the product ID and the quantity ordered.
  =================================================================================*/
 
-
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
