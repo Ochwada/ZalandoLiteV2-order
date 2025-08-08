@@ -60,3 +60,12 @@ This service interacts with:
 - **Inventory Service** – to check and deduct stock
 - **Discount Service** – to calculate applicable discounts
 
+## Results
+- Place an order
+
+
+![img_1.png](img_1.png)
+
+- Retrieve orders
+![img_2.png](img_2.png)
+

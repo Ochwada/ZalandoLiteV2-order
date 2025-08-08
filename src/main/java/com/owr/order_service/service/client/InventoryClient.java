@@ -101,47 +101,64 @@ public class InventoryClient {
     }
 
     /**
-     * Gets stock quantity from the inventory service without authentication.
-     * Only use this if the endpoint is public!
+     * Gets stock quantity from the inventory service with authentication.
      *
      * @param productId the product ID
+     * @param token     the Bearer token for authentication
      * @return available stock or 0 if unavailable
      */
-    public int getStockQuantity(Long productId) {
+    public int getStockQuantity(Long productId, String token) {
         try {
             String url = inventoryServiceUrl + "/" + productId;
-            return restTemplate.getForObject(url, Integer.class);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setBearerAuth(token);  // Add Authorization: Bearer <token>
+            HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+            ResponseEntity<Integer> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    Integer.class
+            );
+
+            return response.getBody() != null ? response.getBody() : 0;
         } catch (Exception e) {
             return 0;
         }
     }
 
     /**
-     * Sends a POST request to the inventory-service to reduce the current stock quantity.
+     * Sends a POST request to the inventory service to reduce the current stock quantity.
      *
      * @param productId the ID of the product to decrease
      * @param quantity  the quantity to reduce from inventory
+     * @param token     the Bearer token for authentication
      */
-    public void decreaseStock(Long productId, int quantity) {
-        // Get current stock from inventory service
-        int currentStock = getStockQuantity(productId);
+    public void decreaseStock(Long productId, int quantity, String token) {
+        // Get current stock with authentication
+        int currentStock = getStockQuantity(productId, token);
 
-        if (currentStock < quantity ){
-            throw  new IllegalArgumentException(
+        if (currentStock < quantity) {
+            throw new IllegalArgumentException(
                     "Not enough stock to reduce for ProductId: " + productId
             );
         }
 
-        // Calculate new Stock
+        // Calculate new stock
         int newStock = currentStock - quantity;
 
         InventoryUpdateRequest request = new InventoryUpdateRequest(productId, newStock);
 
-        // POST to inventory-service
-        restTemplate.postForObject(
-                inventoryServiceUrl,
-                request,
-                Void.class
-        );
+        // Prepare headers
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);  // Authorization: Bearer <token>
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        HttpEntity<InventoryUpdateRequest> entity = new HttpEntity<>(request, headers);
+
+        // Send POST to inventory-service
+        restTemplate.postForEntity(inventoryServiceUrl, entity, Void.class);
     }
+
 }

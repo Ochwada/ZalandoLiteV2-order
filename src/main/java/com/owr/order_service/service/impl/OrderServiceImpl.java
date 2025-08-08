@@ -64,10 +64,10 @@ public class OrderServiceImpl implements OrderService {
      * @throws IllegalArgumentException if any requested item exceeds available stock
      */
     @Override
-    public OrderResponse placeOrder(CreateOrderRequest request) {
-        // Validates available stock for each requested product
+    public OrderResponse placeOrder(CreateOrderRequest request, String token) {
+        // 1. Validate available stock using authenticated request
         for (OrderItemRequest item : request.items()) {
-            int availableStock = client.getStockQuantity(item.productId());
+            int availableStock = client.getStockQuantity(item.productId(), token);
 
             if (item.quantity() > availableStock) {
                 throw new IllegalArgumentException(
@@ -76,18 +76,18 @@ public class OrderServiceImpl implements OrderService {
             }
         }
 
-        //   Map request to Order entity (this converts item DTOs to entities).
+        // 2. Map request to Order entity
         Order order = mapper.toEntity(request);
 
-        // Save to repository ( ID + createdAt set automatically (handled by mongo))
+        // 3. Save to Mongo repository
         Order savedOrder = repository.save(order);
 
-        // Reduce stock in inventory
-        for (OrderItemRequest item : request.items()){
-            client.decreaseStock(item.productId(), item.quantity());
+        // 4. Reduce stock in inventory using authenticated request
+        for (OrderItemRequest item : request.items()) {
+            client.decreaseStock(item.productId(), item.quantity(), token);
         }
 
-        // Map back to response DTO
+        // 5. Map saved order to response
         List<OrderLineItemResponse> itemResponses = mapper.mapToItemResponse(order.getItems());
 
         return new OrderResponse(

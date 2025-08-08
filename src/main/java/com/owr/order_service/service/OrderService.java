@@ -28,15 +28,23 @@ public interface OrderService {
     List<OrderResponse> getAllOrders();
 
     /**
-     * Places a new order based on the provided request details.
+     * Places a new order based on the provided request details and authentication token.
      * *
-     * - This method typically checks inventory availability, calculates total price, and persists the order.
+     * This method performs the following steps:
+     *  - Validates stock availability for each requested item using the inventory service with Bearer token authentication
+     *  - Maps the incoming {@link CreateOrderRequest} to an {@link Order} entity
+     *  - Persists the order in the repository</li>
+     *  - Decreases inventory stock via the inventory service</li>
+     *  - Maps the saved order to an {@link OrderResponse}</li>
+     * </ul>
      *
-     * @param request the {@link CreateOrderRequest} containing the customer's order details
-     * @return the created {@link OrderResponse} with order ID, items, and timestamp
+     * @param request the {@link CreateOrderRequest} containing the customer's order items
+     * @param token   the Bearer token for authenticated requests to the inventory service
+     * @return the created {@link OrderResponse} with order ID, created timestamp, items, status, and total price
+     * @throws IllegalArgumentException if the available stock is insufficient for any item
      */
-    OrderResponse placeOrder(CreateOrderRequest request);
-
+    //OrderResponse placeOrder(CreateOrderRequest request);
+    OrderResponse placeOrder(CreateOrderRequest request, String token);
 
     /**
      * Updates the status of an existing order.

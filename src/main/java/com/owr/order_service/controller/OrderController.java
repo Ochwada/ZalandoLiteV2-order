@@ -59,8 +59,13 @@ public class OrderController {
      * @throws IllegalArgumentException if any item exceeds available stock
      */
     @PostMapping
-    public OrderResponse createOrder(@Valid @RequestBody CreateOrderRequest request){
-        return service.placeOrder(request);
+    public OrderResponse createOrder(
+            @Valid @RequestBody CreateOrderRequest request,
+            @RequestHeader("Authorization") String authHeader
+    ){
+        // Strip the "Bearer " prefix to get the raw token
+        String token = authHeader.replace("Bearer ", "");
+        return service.placeOrder(request, token);
     }
 
 
