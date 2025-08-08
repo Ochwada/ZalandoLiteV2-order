@@ -6,10 +6,12 @@ import com.owr.order_service.dto.response.OrderLineItemResponse;
 import com.owr.order_service.dto.response.OrderResponse;
 import com.owr.order_service.model.Order;
 import com.owr.order_service.model.OrderLineItem;
+import com.owr.order_service.model.Status;
 import com.owr.order_service.service.client.InventoryClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /*=================================================================================
@@ -32,6 +34,50 @@ import java.util.List;
 public class OrderMapper {
     private final InventoryClient client;
 
+
+    /**
+     * Converts a {@link CreateOrderRequest} into an {@link Order} entity.
+     *
+     * @param request the incoming order creation request
+     * @return a new {@link Order} entity ready for persistence
+     */
+    public Order toEntity(CreateOrderRequest request) {
+        // Map each item in the request to an OrderLineItem
+        List<OrderLineItem> items = mapToOrderLineItems(request.items());
+
+        double totalPrice = calculateTotalPrice(request.items());
+
+        // Construct and return the Order entity with the mapped items
+        Order order = new Order();
+        order.setCustomerId(request.customerId());
+        order.setItems(items);
+        order.setTotalPrice(totalPrice);
+        order.setStatus(Status.PENDING); // default status
+        order.setCreatedAt(LocalDateTime.now());
+
+        return order;
+    }
+
+    /**
+     * Converts an {@link Order} entity into an {@link OrderResponse} DTO.
+     *
+     * @param order the saved order from the database
+     * @return a DTO containing public-facing order information
+     */
+    public OrderResponse toResponse(Order order) {
+        List<OrderLineItemResponse> itemResponses = mapToItemResponse(
+                order.getItems());
+
+        return new OrderResponse(
+                order.getId(),
+                order.getCreatedAt(),
+                order.getCustomerId(),
+                itemResponses,
+                order.getStatus(),
+                order.getTotalPrice()
+        );
+    }
+
     //=================== Helper Functions ===============================
 
     /**
@@ -45,7 +91,8 @@ public class OrderMapper {
         return requestItems.stream()
                 .map(item -> new OrderLineItem(
                         item.productId(),
-                        item.quantity()
+                        item.quantity(),
+                        item.price()
                 ))
                 .toList();
     }
@@ -57,39 +104,25 @@ public class OrderMapper {
      * @param items the list of line items in the order
      * @return a list of {@link OrderLineItemResponse} containing productId and quantity
      */
-    private List<OrderLineItemResponse> mapToItemResponse(List<OrderLineItem> items){
+    public List<OrderLineItemResponse> mapToItemResponse(List<OrderLineItem> items) {
         return items.stream()
                 .map(item -> new OrderLineItemResponse(
                         item.getProductId(),
                         item.getQuantity()
                 )).toList();
     }
-    //====================================================================
 
     /**
-     * Converts a {@link CreateOrderRequest} into an {@link Order} entity.
+     * Calculates the total price of the order by multiplying quantity and price per item.
      *
-     * @param request the incoming order creation request
-     * @return a new {@link Order} entity ready for persistence
+     * @param items the list of order request items with productId, quantity, and price
+     * @return the total cost of the order
      */
-    public Order toEntity(CreateOrderRequest request) {
-        // Map each item in the request to an OrderLineItem
-        List<OrderLineItem> items = mapToOrderLineItems(request.items());
-        // Construct and return the Order entity with the mapped items
-        return new Order(items);
+    private double calculateTotalPrice(List<OrderItemRequest> items) {
+        return items.stream()
+                .mapToDouble(
+                        item -> item.price() * item.quantity())
+                .sum();
     }
-
-    public OrderResponse toResponse(Order order) {
-    List<OrderLineItemResponse> itemResponses = mapToItemResponse(
-            order.getItems());
-
-    return new OrderResponse(
-            order.getId(),
-            order.getCreatedAt(),
-            order.getCustomerId(),
-            itemResponses,
-            order.getStatus(),
-            order.getTotalPrice()
-    );
-    }
+    //====================================================================
 }

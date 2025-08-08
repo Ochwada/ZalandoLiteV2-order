@@ -1,6 +1,7 @@
 package com.owr.order_service.service.client;
 
 
+import com.owr.order_service.dto.request.InventoryUpdateRequest;
 import com.owr.order_service.dto.request.OrderItemRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,7 +90,7 @@ public class InventoryClient {
         // Calculate new Stock
         int newStock = currentStock - quantity;
 
-        OrderItemRequest request = new OrderItemRequest(productId, newStock);
+        InventoryUpdateRequest request = new InventoryUpdateRequest(productId, newStock);
 
         // POST to inventory-service
         restTemplate.postForObject(

@@ -16,6 +16,7 @@ import java.util.List;
 
 
 public record CreateOrderRequest(
+        String customerId,
         /**
          * List of items in the order request.
          * Must not be null.

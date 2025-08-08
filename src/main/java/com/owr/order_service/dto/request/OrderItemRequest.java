@@ -1,5 +1,6 @@
 package com.owr.order_service.dto.request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 /*=================================================================================
@@ -10,17 +11,17 @@ import jakarta.validation.constraints.NotNull;
  * Description: A record representing a single item in an order request.
  =================================================================================*/
 
-
+/**
+ * Represents a single product entry in an order request.
+ * *
+ * This record is used within {@link CreateOrderRequest} to define the desired quantity and price for a specific product.
+ *
+ * @param productId the ID of the product to order; must not be {@code null}
+ * @param quantity  the quantity of the product to order; must be at least 1
+ * @param price     the price of a single unit of the product at the time of order
+ */
 public record OrderItemRequest(
-        /**
-         * The ID of the product to order.
-         * Must not be null.
-         */
         @NotNull Long productId,
-
-        /**
-         * Quantity of the product to order.
-         * Must be at least 1.
-         */
-        @Min(1) int quantity
+        @Min(1) int quantity,
+        @DecimalMin(value = "0.00", inclusive = false) double price
 ) { }

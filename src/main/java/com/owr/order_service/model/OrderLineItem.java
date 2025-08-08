@@ -18,4 +18,7 @@ public class OrderLineItem {
 
     /** The quantity of the product ordered. */
     private int quantity;
+
+    /** Price for each item */
+    private double price;
 }
