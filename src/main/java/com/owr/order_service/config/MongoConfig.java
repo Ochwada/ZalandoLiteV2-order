@@ -1,8 +1,10 @@
 package com.owr.order_service.config;
 
 
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.EnableMongoAuditing;
+import org.springframework.web.client.RestTemplate;
 
 /*=================================================================================
  * Project: order-service
@@ -21,4 +23,15 @@ public class MongoConfig {
      * This class does not require any methods or fields; its presence in the application context is sufficient for
      * activating auditing behavior.
      */
+
+    /** --------------------------------------------------------------
+     * Creates and registers a {@link RestTemplate} bean.
+     *
+     * @return a new instance of {@code RestTemplate}
+     */
+
+    @Bean
+    public RestTemplate restTemplate(){
+        return new RestTemplate();
+    }
 }

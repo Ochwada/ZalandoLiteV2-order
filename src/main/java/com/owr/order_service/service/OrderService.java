@@ -44,7 +44,7 @@ public interface OrderService {
      * @param orderId   the ID of the order to update
      * @param newStatus the new status to set
      */
-    void updateOrderStatus(String orderId, Status newStatus);
+    OrderResponse updateOrderStatus(String orderId, Status newStatus);
 
     /**
      * Retrieves all orders created within a given date range.

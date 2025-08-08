@@ -108,12 +108,14 @@ public class OrderServiceImpl implements OrderService {
      * @throws OrderNotFoundException if no order exists with the given ID
      */
     @Override
-    public void updateOrderStatus(String orderId, Status newStatus) {
+    public OrderResponse  updateOrderStatus(String orderId, Status newStatus) {
         Order order = repository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException(orderId));
 
         order.setStatus(newStatus);
-        repository.save(order);
+
+        Order updatedOrder = repository.save(order);
+        return mapper.toResponse(updatedOrder);
     }
 
     @Override
