@@ -167,7 +167,11 @@ public class InventoryClient {
         HttpEntity<InventoryUpdateRequest> entity = new HttpEntity<>(request, headers);
 
         // Send POST to inventory-service
-        restTemplate.postForEntity(inventoryServiceUrl, entity, Void.class);
+        restTemplate.postForEntity(
+                inventoryServiceUrl,
+                entity,
+                Void.class
+        );
     }
 
 }
