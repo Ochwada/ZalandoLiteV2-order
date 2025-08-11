@@ -31,9 +31,9 @@ some *Unique Dependencies* for this service are:
 | `postgresql`                                 | Required at runtime to connect to a PostgreSQL database.                              |
 
 
-![img.png](assets/img.png)
+![img.png](img.png)
 
-
+![img.png](img.png)
 ## Features
 Building an Order microservice that performs the following responsibilities:
 - Process new customer orders
