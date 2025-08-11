@@ -33,7 +33,6 @@ some *Unique Dependencies* for this service are:
 
 ![img.png](img.png)
 
-![img.png](img.png)
 ## Features
 Building an Order microservice that performs the following responsibilities:
 - Process new customer orders
