@@ -108,24 +108,33 @@ public class InventoryClient {
      * @return available stock or 0 if unavailable
      */
     public int getStockQuantity(Long productId, String token) {
-        try {
-            String url = inventoryServiceUrl + "/" + productId;
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);  // Add Authorization: Bearer <token>
-            HttpEntity<Void> entity = new HttpEntity<>(headers);
+        String url = inventoryServiceUrl + "/" + productId;
 
-            ResponseEntity<Integer> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    entity,
-                    Integer.class
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);  // Add Authorization: Bearer <token>
+        HttpEntity<Void> entity = new HttpEntity<>(headers);
+
+        ResponseEntity<Integer> response = restTemplate.exchange(
+                url,
+                HttpMethod.GET,
+                entity,
+                Integer.class
+        );
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new IllegalStateException(
+                    "Inventory GET failed " +
+                            response.getStatusCode()
             );
-
-            return response.getBody() != null ? response.getBody() : 0;
-        } catch (Exception e) {
-            return 0;
         }
+
+        Integer body = response.getBody();
+
+        if (body == null) {
+            throw new IllegalStateException("Inventory GET returned null body ");
+        }
+
+        return body;
     }
 
     /**
