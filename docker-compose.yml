@@ -13,6 +13,7 @@ services:
       - PORT=${PORT}
       - SPRING_DATA_MONGODB_URI=${SPRING_DATA_MONGODB_URI}  # Loaded from .env or environment
       - INVENTORY_SERVICE_URL=${INVENTORY_SERVICE_URL}
+      - PRODUCT_SERVICE_URL=${PRODUCT_SERVICE_URL}
       - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI=https://accounts.google.com
     depends_on:
       - mongo                        # Ensure MongoDB starts first

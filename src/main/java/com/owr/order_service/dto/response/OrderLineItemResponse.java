@@ -12,5 +12,6 @@ package com.owr.order_service.dto.response;
 
 public record OrderLineItemResponse(
         Long productId,
-        int quantity
+        int quantity,
+        double price
 ) { }

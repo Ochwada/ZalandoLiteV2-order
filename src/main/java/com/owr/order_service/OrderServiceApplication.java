@@ -23,7 +23,8 @@ public class OrderServiceApplication {
                 "PORT",
                 "SPRING_DATA_MONGODB_URI",
                 "SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI",
-                "INVENTORY_SERVICE_URL"
+                "INVENTORY_SERVICE_URL",
+                "PRODUCT_SERVICE_URL"
         };
 
         // Iterate through keys and set them as JVM system properties if found

@@ -18,10 +18,9 @@ import jakarta.validation.constraints.NotNull;
  *
  * @param productId the ID of the product to order; must not be {@code null}
  * @param quantity  the quantity of the product to order; must be at least 1
- * @param price     the price of a single unit of the product at the time of order
  */
 public record OrderItemRequest(
         @NotNull Long productId,
-        @Min(1) int quantity,
-        @DecimalMin(value = "0.00", inclusive = false) double price
-) { }
+        @Min(1) int quantity
+) {
+}

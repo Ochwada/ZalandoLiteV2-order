@@ -51,7 +51,26 @@ Building an Order microservice that performs the following responsibilities:
 | GET    | `/api/orders/user/{userId}` | List all orders by user |
 
 > ⚠️ All endpoints require a valid JWT for authentication.
+http://localhost:8589/api/order
 
+
+```yaml
+
+{
+  "customerId": "cust123",
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 15,
+    },
+    {
+      "productId": 2,
+      "quantity": 150,
+    }
+  ]
+}
+
+```
 ## 🔗 Dependencies
 
 This service interacts with:

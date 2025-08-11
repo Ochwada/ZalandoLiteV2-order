@@ -8,16 +8,21 @@ import com.owr.order_service.dto.response.OrderResponse;
 import com.owr.order_service.exception.OrderNotFoundException;
 import com.owr.order_service.mapper.OrderMapper;
 import com.owr.order_service.model.Order;
+import com.owr.order_service.model.OrderLineItem;
 import com.owr.order_service.model.Status;
 import com.owr.order_service.repository.OrderRepository;
 import com.owr.order_service.service.OrderService;
 import com.owr.order_service.service.client.InventoryClient;
+import com.owr.order_service.service.client.ProductClient;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /*=================================================================================
  * Project: order-service
@@ -33,6 +38,8 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository repository;
     private final InventoryClient client;
     private final OrderMapper mapper;
+    private final ProductClient productClient;
+
 
     /**
      * Retrieves all saved orders from the database and maps them to response DTOs.
@@ -65,39 +72,41 @@ public class OrderServiceImpl implements OrderService {
      */
     @Override
     public OrderResponse placeOrder(CreateOrderRequest request, String token) {
-        // 1. Validate available stock using authenticated request
-        for (OrderItemRequest item : request.items()) {
-            int availableStock = client.getStockQuantity(item.productId(), token);
 
-            if (item.quantity() > availableStock) {
+        if (request.items() == null || request.items().isEmpty()) {
+            throw new IllegalArgumentException("Order must contain at least one item.");
+        }
+
+        // 1. Validate available stock using authenticated request
+        for (var item : request.items()) {
+            int available = client.getStockQuantity(item.productId(), token);
+            if (item.quantity() > available) {
                 throw new IllegalArgumentException(
                         "Insufficient stock for ProductId: " + item.productId()
                 );
             }
         }
 
-        // 2. Map request to Order entity
-        Order order = mapper.toEntity(request);
-
-        // 3. Save to Mongo repository
+        // 2) Fetch unit prices (product/catalog service)
+        Map<Long, Double> priceByProductId = request.items().stream()
+                .map(OrderItemRequest::productId)                  // Stream<Long>
+                .distinct()
+                .collect(Collectors.toMap(
+                        Function.identity(),                           // key: Long productId
+                        pid -> productClient.getUnitPrice(pid, token)  // val: Double price
+                ));
+        // 3) Map to entity WITH prices, then save
+        Order order = mapper.toEntity(request, priceByProductId);
         Order savedOrder = repository.save(order);
 
-        // 4. Reduce stock in inventory using authenticated request
-        for (OrderItemRequest item : request.items()) {
+
+        // 4) Decrease stock
+        for (var item : request.items()) {
             client.decreaseStock(item.productId(), item.quantity(), token);
         }
 
-        // 5. Map saved order to response
-        List<OrderLineItemResponse> itemResponses = mapper.mapToItemResponse(order.getItems());
 
-        return new OrderResponse(
-                savedOrder.getId(),
-                savedOrder.getCreatedAt(),
-                savedOrder.getCustomerId(),
-                itemResponses,
-                savedOrder.getStatus(),
-                savedOrder.getTotalPrice()
-        );
+        return mapper.toResponse(savedOrder);
     }
 
     /**

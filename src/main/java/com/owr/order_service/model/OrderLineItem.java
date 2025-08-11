@@ -1,5 +1,8 @@
 package com.owr.order_service.model;
 
+import com.owr.order_service.dto.request.OrderItemRequest;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 /*=================================================================================
  * Project: order-service
@@ -19,6 +22,6 @@ public class OrderLineItem {
     /** The quantity of the product ordered. */
     private int quantity;
 
-    /** Price for each item */
-    private double price;
+    double price;
+
 }

@@ -10,6 +10,7 @@ package com.owr.order_service.dto.response;
  =================================================================================*/
 public record InventoryResponse(
         Long productId,
-        int quantity
+        int quantity,
+        double price
 ) {
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /*=================================================================================
  * Project: order-service
@@ -41,17 +42,30 @@ public class OrderMapper {
      * @param request the incoming order creation request
      * @return a new {@link Order} entity ready for persistence
      */
-    public Order toEntity(CreateOrderRequest request) {
+    public Order toEntity(CreateOrderRequest request, Map<Long, Double> priceByProductId) {
         // Map each item in the request to an OrderLineItem
-        List<OrderLineItem> items = mapToOrderLineItems(request.items());
+        //List<OrderLineItem> items = mapToOrderLineItems(request.items());
+        List<OrderLineItem> items = request.items().stream()
+                .map(i -> {
+                    OrderLineItem li = new OrderLineItem();   // needs no-args ctor
+                    li.setProductId(i.productId());
+                    li.setQuantity(i.quantity());
+                    li.setPrice(priceByProductId.getOrDefault(i.productId(), 0.0)); // adapt type as needed
+                    return li;
+                })
+                .toList();
 
-        double totalPrice = calculateTotalPrice(request.items());
+
+        //double totalPrice = calculateTotalPrice(request.items());
+        double total = items.stream()
+                .mapToDouble(li -> li.getPrice() * li.getQuantity())
+                .sum();
 
         // Construct and return the Order entity with the mapped items
         Order order = new Order();
         order.setCustomerId(request.customerId());
         order.setItems(items);
-        order.setTotalPrice(totalPrice);
+        order.setTotalPrice(total);
         order.setStatus(Status.PENDING); // default status
         order.setCreatedAt(LocalDateTime.now());
 
@@ -65,14 +79,11 @@ public class OrderMapper {
      * @return a DTO containing public-facing order information
      */
     public OrderResponse toResponse(Order order) {
-        List<OrderLineItemResponse> itemResponses = mapToItemResponse(
-                order.getItems());
-
         return new OrderResponse(
                 order.getId(),
                 order.getCreatedAt(),
                 order.getCustomerId(),
-                itemResponses,
+                mapToItemResponse(order.getItems()),
                 order.getStatus(),
                 order.getTotalPrice()
         );
@@ -87,15 +98,14 @@ public class OrderMapper {
      * @param requestItems the list of items from the incoming order request
      * @return a list of {@link OrderLineItem} ready to be saved with the order
      */
-    private List<OrderLineItem> mapToOrderLineItems(List<OrderItemRequest> requestItems) {
-        return requestItems.stream()
-                .map(item -> new OrderLineItem(
-                        item.productId(),
-                        item.quantity(),
-                        item.price()
-                ))
-                .toList();
-    }
+//    private List<OrderLineItem> mapToOrderLineItems(List<OrderItemRequest> requestItems) {
+//        return requestItems.stream()
+//                .map(item -> new OrderLineItem(
+//                        item.productId(),
+//                        item.quantity()
+//                ))
+//                .toList();
+//    }
 
     /**
      * 2.
@@ -108,7 +118,8 @@ public class OrderMapper {
         return items.stream()
                 .map(item -> new OrderLineItemResponse(
                         item.getProductId(),
-                        item.getQuantity()
+                        item.getQuantity(),
+                        item.getPrice()
                 )).toList();
     }
 
@@ -118,11 +129,11 @@ public class OrderMapper {
      * @param items the list of order request items with productId, quantity, and price
      * @return the total cost of the order
      */
-    private double calculateTotalPrice(List<OrderItemRequest> items) {
-        return items.stream()
-                .mapToDouble(
-                        item -> item.price() * item.quantity())
-                .sum();
-    }
+//    private double calculateTotalPrice(List<OrderItemRequest> items) {
+//        return items.stream()
+//                .mapToDouble(
+//                        item -> item.price() * item.quantity())
+//                .sum();
+//    }
     //====================================================================
 }
