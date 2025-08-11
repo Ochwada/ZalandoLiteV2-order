@@ -31,7 +31,7 @@ some *Unique Dependencies* for this service are:
 | `postgresql`                                 | Required at runtime to connect to a PostgreSQL database.                              |
 
 
-![img.png](img.png)
+![img.png](assets/img.png)
 
 
 ## Features
@@ -64,8 +64,8 @@ This service interacts with:
 - Place an order
 
 
-![img_1.png](img_1.png)
+![img_1.png](assets/img_1.png)
 
 - Retrieve orders
-![img_2.png](img_2.png)
+![img_2.png](assets/img_2.png)
 
